@@ -1,21 +1,36 @@
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Fallback pour le web si AsyncStorage n'est pas disponible
+// Fallback pour le web
 const createWebStorage = () => {
   return {
     getItem: async (key) => {
-      return localStorage.getItem(key);
+      try {
+        return Promise.resolve(localStorage.getItem(key));
+      } catch (e) {
+        return Promise.reject(e);
+      }
     },
     setItem: async (key, value) => {
-      return localStorage.setItem(key, value);
+      try {
+        localStorage.setItem(key, value);
+        return Promise.resolve();
+      } catch (e) {
+        return Promise.reject(e);
+      }
     },
     removeItem: async (key) => {
-      return localStorage.removeItem(key);
+      try {
+        localStorage.removeItem(key);
+        return Promise.resolve();
+      } catch (e) {
+        return Promise.reject(e);
+      }
     },
   };
 };
 
 // Utiliser AsyncStorage pour mobile ou localStorage pour web
-const storage = typeof window !== 'undefined' ? createWebStorage() : AsyncStorage;
+const storage = Platform.OS === 'web' ? createWebStorage() : AsyncStorage;
 
 export default storage;
